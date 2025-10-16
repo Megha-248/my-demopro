@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wishlist | E-Shop</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f6f7;
+    margin: 0;
+  }
+
+  header {
+    background-color: #2c3e50;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    position: relative;
+  }
+
+  .logo {
+    font-size: 1.5em;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .profile-container {
+    position: relative;
+  }
+
+  .profile-btn {
+    background: #ff6f61;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+
+  .profile-btn:hover {
+    background: #e74c3c;
+  }
+
+  .profile-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 10;
+  }
+
+  .profile-dropdown button {
+    display: block;
+    background: none;
+    color: #2c3e50;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .profile-dropdown button:hover {
+    background: #f1f1f1;
+  }
+
+  main {
+    max-width: 900px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 25px;
+  }
+
+  .wishlist-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #bdc3c7;
+    padding-bottom: 15px;
+  }
+
+  .wishlist-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .wishlist-item div {
+    flex: 1;
+    margin-left: 15px;
+  }
+
+  .wishlist-item h4 {
+    margin: 0;
+    font-size: 16px;
+    color: #2c3e50;
+  }
+
+  .wishlist-item p {
+    margin: 5px 0;
+    color: #34495e;
+    font-size: 14px;
+  }
+
+  .remove-wish {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .remove-wish:hover {
+    background: #c0392b;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" onclick="window.location.href='index.html'">🛍️ E-Shop</div>
+  <div class="profile-container">
+    <button class="profile-btn" id="profile-btn">Profile ▼</button>
+    <div class="profile-dropdown" id="profile-dropdown">
+      <button onclick="window.location.href='index.html'">🏠 Home</button>
+      <button onclick="window.location.href='wishlist.html'">❤️ Wishlist</button>
+      <button onclick="window.location.href='orders.html'">📦 My Orders</button>
+      <button onclick="window.location.href='cart.html'">🛒 My Cart</button>
+      <button onclick="window.location.href='edit-profile.html'">👤 Edit Profile</button>
+      <button id="logout-btn">🚪 Logout</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>My Wishlist ❤️</h1>
+  <div id="wishlist-container"></div>
+</main>
+
+<script>
+  // ---------------- Dropdown toggle ----------------
+  document.getElementById('profile-btn').addEventListener('click', () => {
+    const dropdown = document.getElementById('profile-dropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // ---------------- Check login ----------------
+  const loggedUser = localStorage.getItem('loggedUser');
+  if (!loggedUser) {
+    alert("Please login first!");
+    window.location.href = 'login.html';
+  }
+
+  // ---------------- Load wishlist ----------------
+  let wishlistIds = new Set(JSON.parse(localStorage.getItem('wishlist')) || []);
+  let allProducts = JSON.parse(localStorage.getItem('allProducts')) || [
+  {id:1, name:"Red Dress", price:1200, img:"images/red-dress.jpg"},
+  {id:2, name:"Blue Jeans", price:1500, img:"images/blue-jeans.jpg"},
+  {id:3, name:"White T-Shirt", price:700, img:"images/white-tshirt.jpg"},
+  {id:4, name:"Black Sneakers", price:2500, img:"images/black-sneakers.jpg"},
+  {id:5, name:"Brown Sandals", price:1800, img:"images/brown-sandals.jpg"},
+  {id:6, name:"Leather Boots", price:3200, img:"images/leather-boots.jpg"},
+  {id:8, name:"Smartwatch", price:5500, img:"images/smartwatch.jpg"},
+  {id:9, name:"Mobile Phone", price:15000, img:"images/phone.jpg"},
+  {id:10, name:"Sunglasses", price:1200, img:"images/sunglasses.jpg"},
+  {id:11, name:"Leather Wallet", price:900, img:"images/wallet.jpg"},
+  {id:12, name:"Analog Watch", price:2000, img:"images/watch.jpg"},
+  {id:13, name:"Ceramic Mug", price:400, img:"images/mug.jpg"},
+  {id:14, name:"Table Lamp", price:1500, img:"images/lamp.jpg"},
+  {id:15, name:"Decorative Pillow", price:800, img:"images/pillow.jpg"},
+  {id:16, name:"Blue Shirt", price:1100, img:"images/blue-shirt.jpg"},
+  {id:17, name:"Grey Hoodie", price:1800, img:"images/grey-hoodie.jpg"},
+  {id:18, name:"Running Shoes", price:2600, img:"images/running-shoes.jpg"},
+  {id:19, name:"Flip Flops", price:600, img:"images/flipflops.jpg"},
+  {id:20, name:"Wireless Earbuds", price:3200, img:"images/earbuds.jpg"},
+  {id:21, name:"Gaming Mouse", price:1800, img:"images/gaming-mouse.jpg"},
+  {id:22, name:"Mechanical Keyboard", price:3500, img:"images/keyboard.jpg"},
+  {id:23, name:"Laptop Stand", price:1200, img:"images/laptop-stand.jpg"},
+  {id:24, name:"Backpack", price:2000, img:"images/backpack.jpg"},
+  {id:25, name:"Travel Bag", price:2800, img:"images/travel-bag.jpg"},
+  {id:26, name:"Coffee Maker", price:3200, img:"images/coffee-maker.jpg"},
+  {id:27, name:"Water Bottle", price:500, img:"images/water-bottle.jpg"},
+  {id:28, name:"Yoga Mat", price:800, img:"images/yoga-mat.jpg"},
+  {id:29, name:"Sports Cap", price:400, img:"images/sports-cap.jpg"},
+  {id:30, name:"Denim Jacket", price:2500, img:"images/denim-jacket.jpg"},
+  {id:31, name:"Black Belt", price:700, img:"images/black-belt.jpg"},
+  {id:32, name:"Earrings Set", price:900, img:"images/earrings.jpg"},
+  {id:33, name:"Necklace", price:1500, img:"images/necklace.jpg"},
+  {id:34, name:"Bracelet", price:1200, img:"images/bracelet.jpg"},
+  {id:35, name:"Wall Clock", price:1800, img:"images/wall-clock.jpg"},
+  {id:36, name:"Floor Rug", price:2500, img:"images/floor-rug.jpg"},
+  {id:37, name:"Cushion Cover", price:400, img:"images/cushion-cover.jpg"},
+  {id:38, name:"Desk Organizer", price:800, img:"images/desk-organizer.jpg"},
+  {id:39, name:"Bluetooth Speaker", price:3000, img:"images/bluetooth-speaker.jpg"},
+  {id:40, name:"Laptop Bag", price:3500, img:"images/laptop-bag.jpg"}
+  ];
+
+  const wishlistContainer = document.getElementById('wishlist-container');
+
+  function renderWishlist() {
+    wishlistContainer.innerHTML = '';
+    if (wishlistIds.size === 0) {
+      wishlistContainer.innerHTML = "<p style='text-align:center; color:#7f8c8d;'>Your wishlist is empty 💔</p>";
+      return;
+    }
+
+    wishlistIds.forEach(id => {
+      const product = allProducts.find(p => p.id === id);
+      if (product) {
+        const div = document.createElement('div');
+        div.className = 'wishlist-item';
+        div.innerHTML = `
+          <img src="${product.img}" alt="${product.name}">
+          <div>
+            <h4>${product.name}</h4>
+            <p>₹${product.price}</p>
+            <button class="remove-wish">Remove</button>
+          </div>
+        `;
+        wishlistContainer.appendChild(div);
+
+        div.querySelector('.remove-wish').addEventListener('click', () => {
+          wishlistIds.delete(product.id);
+          localStorage.setItem('wishlist', JSON.stringify(Array.from(wishlistIds)));
+          renderWishlist();
+        });
+      }
+    });
+  }
+
+  renderWishlist();
+
+  // ---------------- Logout ----------------
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('loggedUser');
+    alert("Logged out successfully!");
+    window.location.href = 'login.html';
+  });
+</script>
+
+</body>
+</html>

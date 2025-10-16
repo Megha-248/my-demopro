@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Shop | Home</title>
+<style>
+body { font-family: 'Poppins', sans-serif; background-color: #f4f6f7; margin: 0; padding: 0; }
+/* Header */
+header { background-color: #2c3e50; color: white; display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+.logo { font-size: 1.5em; font-weight: bold; cursor: pointer; }
+#user-greeting { margin-left: 15px; font-weight: 600; color: #f1c40f; }
+#search { padding: 8px 15px; border-radius: 25px; border: 1px solid #bdc3c7; width: 250px; margin-left: 20px; }
+/* Profile Dropdown */
+.profile-container { position: relative; }
+.profile-dropdown { display: none; position: absolute; right: 0; top: 45px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; z-index: 10; }
+.profile-dropdown button { display: block; background: none; color: #2c3e50; border: none; width: 100%; text-align: left; padding: 10px 20px; font-size: 14px; cursor: pointer; }
+.profile-dropdown button:hover { background: #f1f1f1; }
+header button.profile-btn { background-color: #ff6f61; border: none; border-radius: 25px; color: white; padding: 8px 15px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+header button.profile-btn:hover { background-color: #e74c3c; }
+/* Cart Button */
+#cart-button { background-color: #27ae60; border: none; border-radius: 25px; color: white; padding: 8px 15px; cursor: pointer; font-weight: 600; margin-left: 10px; transition: 0.3s; position: relative; }
+#cart-button:hover { background-color: #1e8449; }
+#cart-count { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 4px 8px; font-size: 12px; font-weight: bold; display: none; }
+/* Products Grid */
+#products-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; max-width: 1000px; margin: 40px auto; }
+.product-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; transition: transform 0.2s; }
+.product-card:hover { transform: translateY(-5px); }
+.product-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
+.product-card h3 { margin: 10px 0 5px; font-size: 1em; color: #2c3e50; }
+.product-card p { color: #34495e; margin: 5px 0; }
+.product-actions { display: flex; justify-content: space-between; margin-top: 10px; }
+.product-actions button { padding: 5px 10px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; transition: 0.3s; }
+.add-cart { background-color: #27ae60; color: white; }
+.add-cart.added { background-color: #95a5a6; cursor: default; }
+.add-cart:hover:not(.added) { background-color: #1e8449; }
+.like-btn { background-color: #fff; color: #e74c3c; border: 1px solid #e74c3c; }
+.like-btn.liked { background-color: #e74c3c; color: white; }
+</style>
+</head>
+<body>
+<header>
+    <div style="display:flex; align-items:center;">
+        <div class="logo" onclick="window.location.href='index.html'">🛍️ E-Shop</div>
+        <span id="user-greeting"></span>
+        <input type="text" id="search" placeholder="Search products...">
+    </div>
+    <div style="display:flex; align-items:center;">
+        <button id="cart-button" onclick="window.location.href='cart.html'">🛒 Cart <span id="cart-count">0</span></button>
+        <div class="profile-container">
+            <button class="profile-btn" id="profile-btn">Profile ▼</button>
+            <div class="profile-dropdown" id="profile-dropdown">
+                <button onclick="window.location.href='index.html'">🏠 Home</button>
+                <button onclick="window.location.href='wishlist.html'">❤️ Wishlist</button>
+                <button onclick="window.location.href='orders.html'">📦 My Orders</button>
+                <button onclick="window.location.href='edit-profile.html'">👤 Edit Profile</button>
+                <button id="logout-btn">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div id="products-container"></div>
+
+<script>
+// ------------------- Profile Dropdown ----------------
+const profileBtn = document.getElementById('profile-btn');
+profileBtn.addEventListener('click', () => {
+    const dropdown = document.getElementById('profile-dropdown');
+    dropdown.style.display = dropdown.style.display==='block'?'none':'block';
+});
+
+const loggedUser = localStorage.getItem('loggedUser');
+const userGreeting = document.getElementById('user-greeting');
+if(loggedUser){
+    userGreeting.textContent = `Hello, ${loggedUser} 👋`;
+}
+
+// ------------------- Products ----------------
+const allProducts = [
+{id:1,name:"Red Dress",price:1200,img:"images/red-dress.jpg"},
+{id:2,name:"Blue Jeans",price:1500,img:"images/blue-jeans.jpg"},
+{id:3,name:"White T-Shirt",price:700,img:"images/white-tshirt.jpg"},
+{id:4,name:"Black Sneakers",price:2500,img:"images/black-sneakers.jpg"},
+{id:5,name:"Brown Sandals",price:1800,img:"images/brown-sandals.jpg"},
+{id:6,name:"Leather Boots",price:3200,img:"images/leather-boots.jpg"},
+{id:7,name:"Smartwatch",price:5500,img:"images/smartwatch.jpg"},
+{id:8,name:"Mobile Phone",price:15000,img:"images/phone.jpg"},
+{id:9,name:"Sunglasses",price:1200,img:"images/sunglasses.jpg"},
+{id:10,name:"Leather Wallet",price:900,img:"images/wallet.jpg"},
+{id:11,name:"Analog Watch",price:2000,img:"images/watch.jpg"},
+{id:12,name:"Ceramic Mug",price:400,img:"images/mug.jpg"},
+{id:13,name:"Table Lamp",price:1500,img:"images/lamp.jpg"},
+{id:14,name:"Decorative Pillow",price:800,img:"images/pillow.jpg"},
+{id:15,name:"Blue Shirt",price:1100,img:"images/blue-shirt.jpg"},
+{id:16,name:"Grey Hoodie",price:1800,img:"images/grey-hoodie.jpg"},
+{id:17,name:"Running Shoes",price:2600,img:"images/running-shoes.jpg"},
+{id:18,name:"Flip Flops",price:600,img:"images/flipflops.jpg"},
+{id:19,name:"Wireless Earbuds",price:3200,img:"images/earbuds.jpg"},
+{id:20,name:"Gaming Mouse",price:1800,img:"images/gaming-mouse.jpg"},
+{id:21,name:"Mechanical Keyboard",price:3500,img:"images/keyboard.jpg"},
+{id:22,name:"Laptop Stand",price:1200,img:"images/laptop-stand.jpg"},
+{id:23,name:"Backpack",price:2000,img:"images/backpack.jpg"},
+{id:24,name:"Travel Bag",price:2800,img:"images/travel-bag.jpg"},
+{id:25,name:"Coffee Maker",price:3200,img:"images/coffee-maker.jpg"},
+{id:26,name:"Water Bottle",price:500,img:"images/water-bottle.jpg"},
+{id:27,name:"Yoga Mat",price:800,img:"images/yoga-mat.jpg"},
+{id:28,name:"Sports Cap",price:400,img:"images/sports-cap.jpg"},
+{id:29,name:"Denim Jacket",price:2500,img:"images/denim-jacket.jpg"},
+{id:30,name:"Black Belt",price:700,img:"images/black-belt.jpg"},
+{id:31,name:"Earrings Set",price:900,img:"images/earrings.jpg"},
+{id:32,name:"Necklace",price:1500,img:"images/necklace.jpg"},
+{id:33,name:"Bracelet",price:1200,img:"images/bracelet.jpg"},
+{id:34,name:"Wall Clock",price:1800,img:"images/wall-clock.jpg"},
+{id:35,name:"Floor Rug",price:2500,img:"images/floor-rug.jpg"},
+{id:36,name:"Cushion Cover",price:400,img:"images/cushion-cover.jpg"},
+{id:37,name:"Desk Organizer",price:800,img:"images/desk-organizer.jpg"},
+{id:38,name:"Bluetooth Speaker",price:3000,img:"images/bluetooth-speaker.jpg"},
+{id:39,name:"Laptop Bag",price:3500,img:"images/laptop-bag.jpg"},
+{id:40,name:"Sports Shoes",price:2800,img:"images/sports-shoes.jpg"}
+];
+// ------------------- Cart & Wishlist ----------------
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let wishlistIds = new Set(JSON.parse(localStorage.getItem("wishlist")) || []);
+let addedToCartIds = new Set(cart.map(i => i.id));
+
+function updateCartCount(){
+    const total = cart.reduce((sum, i) => sum + i.qty, 0);
+    const cartCountEl = document.getElementById("cart-count");
+    cartCountEl.innerText = total;
+    cartCountEl.style.display = total>0?"inline-block":"none";
+}
+updateCartCount();
+
+function renderProducts(products){
+    const container = document.getElementById("products-container");
+    container.innerHTML = "";
+    products.forEach(p=>{
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+            <img src="${p.img}" alt="${p.name}">
+            <h3>${p.name}</h3>
+            <p>₹${p.price}</p>
+            <div class="product-actions">
+                <button class="add-cart">Add to Cart</button>
+                <button class="like-btn ${wishlistIds.has(p.id)?'liked':''}">❤️</button>
+            </div>
+        `;
+        const addBtn = card.querySelector(".add-cart");
+        const likeBtn = card.querySelector(".like-btn");
+        if(addedToCartIds.has(p.id)){
+            addBtn.innerText="Added to Cart"; addBtn.disabled=true; addBtn.classList.add("added");
+        }
+        addBtn.addEventListener("click",()=>{
+            let item = cart.find(it=>it.id===p.id);
+            if(item) item.qty+=1;
+            else cart.push({...p,qty:1});
+            localStorage.setItem("cart",JSON.stringify(cart));
+            addBtn.innerText="Added to Cart"; addBtn.disabled=true; addBtn.classList.add("added");
+            addedToCartIds.add(p.id);
+            updateCartCount();
+        });
+        likeBtn.addEventListener("click",()=>{
+            if(wishlistIds.has(p.id)){ wishlistIds.delete(p.id); likeBtn.classList.remove("liked"); }
+            else{ wishlistIds.add(p.id); likeBtn.classList.add("liked"); }
+            localStorage.setItem("wishlist",JSON.stringify(Array.from(wishlistIds)));
+        });
+        container.appendChild(card);
+    });
+}
+
+document.getElementById("search").addEventListener("input",()=>{
+    const query = document.getElementById("search").value.toLowerCase();
+    renderProducts(allProducts.filter(p=>p.name.toLowerCase().includes(query)));
+});
+
+// ------------------- Logout ----------------
+document.getElementById("logout-btn").addEventListener("click", ()=>{
+    localStorage.removeItem('loggedUser');
+    alert("Logged out successfully!");
+    window.location.href='login.html';
+});
+
+renderProducts(allProducts);
+</script>
+</body>
+</html>

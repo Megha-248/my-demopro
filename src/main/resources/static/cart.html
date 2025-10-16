@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Cart | E-Shop</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f6f7;
+    margin: 0;
+  }
+
+  header {
+    background-color: #2c3e50;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    position: relative;
+  }
+
+  .logo { font-size: 1.5em; font-weight: bold; cursor: pointer; }
+  .profile-container { position: relative; }
+  .profile-btn {
+    background: #ff6f61;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+  .profile-btn:hover { background: #e74c3c; }
+  .profile-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 10;
+  }
+  .profile-dropdown button {
+    display: block;
+    background: none;
+    color: #2c3e50;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .profile-dropdown button:hover { background: #f1f1f1; }
+
+  main {
+    max-width: 900px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  h1 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+  .cart-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #bdc3c7; padding-bottom: 15px; }
+  .cart-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
+  .cart-item div { flex: 1; margin-left: 15px; }
+  .cart-item h4 { margin: 0; font-size: 16px; color: #2c3e50; }
+  .cart-item p { margin: 5px 0; color: #34495e; font-size: 14px; }
+  .quantity { display: flex; align-items: center; gap: 8px; }
+  .quantity button { padding: 4px 10px; border: none; background: #27ae60; color: white; border-radius: 4px; cursor: pointer; font-weight: bold; }
+  .quantity button:hover { background: #1e8449; }
+  .remove { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+  .remove:hover { background: #c0392b; }
+  .total { text-align: right; margin-top: 20px; font-size: 18px; font-weight: 600; color: #2c3e50; }
+  #checkout {
+    background: #ff6f61;
+    border: none;
+    color: white;
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 25px;
+    cursor: pointer;
+    float: right;
+    margin-top: 15px;
+    transition: 0.3s;
+  }
+  #checkout:hover { background: #e74c3c; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" onclick="window.location.href='index.html'">🛍️ E-Shop</div>
+  <div class="profile-container">
+    <button class="profile-btn" id="profile-btn">Profile ▼</button>
+    <div class="profile-dropdown" id="profile-dropdown">
+      <button onclick="window.location.href='index.html'">🏠 Home</button>
+      <button onclick="window.location.href='wishlist.html'">❤️ Wishlist</button>
+      <button onclick="window.location.href='orders.html'">📦 My Orders</button>
+      <button onclick="window.location.href='cart.html'">🛒 My Cart</button>
+      <button onclick="window.location.href='edit-profile.html'">👤 Edit Profile</button>
+      <button id="logout-btn">🚪 Logout</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>My Cart 🛒</h1>
+  <div id="cart-container"></div>
+  <div class="total">Total: ₹<span id="total">0</span></div>
+  <button id="checkout">Checkout</button>
+</main>
+
+<script>
+  // ---------------- Dropdown toggle ----------------
+  document.getElementById('profile-btn').addEventListener('click', () => {
+    const dropdown = document.getElementById('profile-dropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // ---------------- Check login ----------------
+  const loggedUser = localStorage.getItem('loggedUser');
+  if (!loggedUser) {
+    alert("Please login first!");
+    window.location.href = 'login.html';
+  }
+
+  // ---------------- Load cart ----------------
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const cartContainer = document.getElementById('cart-container');
+  const totalEl = document.getElementById('total');
+
+  function renderCart() {
+    cartContainer.innerHTML = '';
+    let total = 0;
+
+    if (cart.length === 0) {
+      cartContainer.innerHTML = "<p style='text-align:center; color:#7f8c8d;'>Your cart is empty 🛒</p>";
+      totalEl.innerText = "0";
+      return;
+    }
+
+    cart.forEach(item => {
+      total += item.price * item.qty;
+
+      const div = document.createElement('div');
+      div.className = 'cart-item';
+      div.innerHTML = `
+        <img src="${item.img}" alt="${item.name}">
+        <div>
+          <h4>${item.name}</h4>
+          <p>₹${item.price} × ${item.qty}</p>
+        </div>
+        <div class="quantity">
+          <button class="minus">-</button>
+          <span class="qty">${item.qty}</span>
+          <button class="plus">+</button>
+        </div>
+        <button class="remove">Remove</button>
+      `;
+      cartContainer.appendChild(div);
+
+      // Plus
+      div.querySelector(".plus").addEventListener("click", () => {
+        item.qty += 1;
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+      });
+
+      // Minus
+      div.querySelector(".minus").addEventListener("click", () => {
+        if (item.qty > 1) item.qty -= 1;
+        else cart = cart.filter(i => i.id !== item.id);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+      });
+
+      // Remove
+      div.querySelector(".remove").addEventListener("click", () => {
+        cart = cart.filter(i => i.id !== item.id);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+      });
+    });
+
+    totalEl.innerText = total.toFixed(2);
+  }
+
+  renderCart();
+
+  // ---------------- Checkout ----------------
+  document.getElementById('checkout').addEventListener('click', () => {
+    if (cart.length === 0) {
+      alert("Cart is empty!");
+      return;
+    }
+    // Save cart for checkout
+    localStorage.setItem('checkoutCart', JSON.stringify(cart));
+    window.location.href = 'checkout.html';
+  });
+
+  // ---------------- Logout ----------------
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('loggedUser');
+    alert("Logged out successfully!");
+    window.location.href = 'login.html';
+  });
+</script>
+
+</body>
+</html>

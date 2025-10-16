@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout | E-Shop</title>
+<style>
+  body { font-family:'Poppins',sans-serif; background:#f4f6f7; margin:0; padding:0; }
+  header {
+    background-color: #2c3e50;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .logo { font-size: 1.5em; cursor:pointer; font-weight:bold; }
+  .profile-container { position: relative; }
+  .profile-btn {
+    background: #ff6f61;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+  .profile-btn:hover { background: #e74c3c; }
+  .profile-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 10;
+  }
+  .profile-dropdown button {
+    display: block;
+    background: none;
+    color: #2c3e50;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .profile-dropdown button:hover { background: #f1f1f1; }
+
+  main { max-width:600px; margin:40px auto; background:white; padding:30px; border-radius:12px; box-shadow:0 4px 8px rgba(0,0,0,0.1); }
+  h1, h2 { text-align:center; color:#2c3e50; }
+  .checkout-item { padding:10px 0; border-bottom:1px solid #ccc; }
+  .payment-options { margin:20px 0; }
+  .payment-options label {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+    cursor:pointer;
+    border:1px solid #ccc;
+    padding:5px;
+    border-radius:8px;
+  }
+  .payment-options img { width:40px; height:40px; }
+  input[type=text], input[type=tel] { width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #bdc3c7; }
+  #checkout-btn { background:#27ae60; color:white; border:none; border-radius:25px; padding:12px 20px; font-weight:600; cursor:pointer; width:100%; margin-top:20px; }
+  #checkout-btn:hover { background:#1e8449; }
+  #thank { text-align:center; font-size:18px; font-weight:bold; color:#27ae60; display:none; margin-top:20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" onclick="window.location.href='index.html'">🛍️ E-Shop</div>
+  <div class="profile-container">
+    <button class="profile-btn" id="profile-btn">Profile ▼</button>
+    <div class="profile-dropdown" id="profile-dropdown">
+      <button onclick="window.location.href='index.html'">🏠 Home</button>
+      <button onclick="window.location.href='wishlist.html'">❤️ Wishlist</button>
+      <button onclick="window.location.href='orders.html'">📦 My Orders</button>
+      <button onclick="window.location.href='cart.html'">🛒 My Cart</button>
+      <button onclick="window.location.href='edit-profile.html'">👤 Edit Profile</button>
+      <button id="logout-btn">🚪 Logout</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>Checkout</h1>
+
+  <div id="checkout-container">
+    <p>Your cart is empty 🛒</p>
+  </div>
+
+  <h2>Total: ₹<span id="total">0</span></h2>
+
+  <input type="text" id="address" placeholder="Enter Delivery Address">
+  <input type="tel" id="number" placeholder="Enter Mobile Number">
+
+  <div class="payment-options">
+    <h3>Select Payment Method:</h3>
+    <label><input type="radio" name="payment" value="Google Pay"><img src="images/gpay.png" alt="GPay"> Google Pay</label>
+    <label><input type="radio" name="payment" value="PhonePe"><img src="images/phonepe.png" alt="PhonePe"> PhonePe</label>
+    <label><input type="radio" name="payment" value="Paytm"><img src="images/paytm.png" alt="Paytm"> Paytm</label>
+    <label><input type="radio" name="payment" value="Cash on Delivery"> 💵 Cash on Delivery</label>
+  </div>
+
+  <button id="checkout-btn">Pay & Place Order ✅</button>
+  <p id="thank">Thank you & Your order is placed!</p>
+</main>
+
+<script>
+  // Profile dropdown toggle
+  document.getElementById('profile-btn').addEventListener('click', () => {
+    const dropdown = document.getElementById('profile-dropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // Logout
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('loggedUser');
+    alert("Logged out successfully!");
+    window.location.href = 'login.html';
+  });
+
+  const checkoutContainer = document.getElementById('checkout-container');
+  const totalEl = document.getElementById('total');
+  const checkoutBtn = document.getElementById('checkout-btn');
+  const thankMsg = document.getElementById('thank');
+  const addressInput = document.getElementById('address');
+  const numberInput = document.getElementById('number');
+
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+  function renderCheckout() {
+    checkoutContainer.innerHTML = '';
+    if(cart.length === 0){
+      checkoutContainer.innerHTML = '<p>Your cart is empty 🛒</p>';
+      totalEl.innerText = '0';
+      return;
+    }
+
+    let total = 0;
+    cart.forEach(item => {
+      total += item.price * item.qty;
+      const div = document.createElement('div');
+      div.className = 'checkout-item';
+      div.innerHTML = `${item.name} × ${item.qty} = ₹${item.price*item.qty}`;
+      checkoutContainer.appendChild(div);
+    });
+    totalEl.innerText = total.toFixed(2);
+  }
+
+  renderCheckout();
+
+  checkoutBtn.addEventListener('click', () => {
+    if(cart.length === 0){
+      alert('Cart is empty!');
+      return;
+    }
+
+    const selectedPayment = document.querySelector('input[name="payment"]:checked');
+    if(!selectedPayment){
+      alert('Please select a payment method!');
+      return;
+    }
+
+    if(addressInput.value.trim() === '' || numberInput.value.trim() === ''){
+      alert('Please enter address and mobile number!');
+      return;
+    }
+
+    let paymentStatus = selectedPayment.value === 'Cash on Delivery' 
+                        ? '💵 Cash on Delivery' 
+                        : `✅ Paid via ${selectedPayment.value}`;
+
+    // Save orders
+    let orders = JSON.parse(localStorage.getItem('orders')) || [];
+    cart.forEach(item => {
+      orders.push({
+        ...item,
+        status: paymentStatus,
+        address: addressInput.value.trim(),
+        number: numberInput.value.trim(),
+        date: new Date().toLocaleString()
+      });
+    });
+    localStorage.setItem('orders', JSON.stringify(orders));
+
+    // Clear cart
+    localStorage.removeItem('cart');
+    cart = [];
+    renderCheckout();
+
+    // Show thank you message
+    checkoutBtn.style.display = 'none';
+    thankMsg.style.display = 'block';
+
+    // Redirect to home after 2s
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 2000);
+  });
+</script>
+
+</body>
+</html>

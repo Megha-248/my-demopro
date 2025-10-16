@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome | E-Shop</title>
+<style>
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: white;
+    text-align: center;
+}
+h1 {
+    font-size: 3em;
+    margin-bottom: 30px;
+}
+button {
+    background-color: #ff6f61;
+    border: none;
+    border-radius: 25px;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    color: white;
+}
+button:hover {
+    background-color: #e74c3c;
+}
+</style>
+</head>
+<body>
+<div>
+    <h1>Welcome to E-Shop</h1>
+    <button onclick="startShopping()">Start</button>
+</div>
+
+<script>
+function startShopping() {
+    window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>

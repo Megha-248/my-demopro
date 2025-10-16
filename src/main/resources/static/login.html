@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Login - E-Shop</title>
+
+<style>
+  /* Simple, consistent styles matching your site */
+  :root{
+    --header-bg: #2c3e50;
+    --accent: #ff6f61;
+    --button: #e67e22;
+    --success: #27ae60;
+    --danger: #e74c3c;
+    --muted: #7f8c8d;
+    font-family: "Poppins", sans-serif;
+  }
+
+  body{
+    margin:0;
+    background:#f4f6f7;
+    display:flex;
+    min-height:100vh;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+
+  .card{
+    width:100%;
+    max-width:420px;
+    background:white;
+    border-radius:12px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.08);
+    overflow:hidden;
+  }
+
+  header{
+    background: linear-gradient(90deg,var(--header-bg), #34495e);
+    color:white;
+    padding:18px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+
+  header .brand { font-weight:700; letter-spacing:1px; font-size:1.05rem; }
+  header .sub { opacity:0.9; font-size:0.9rem; }
+
+  .content{
+    padding:28px 26px;
+  }
+
+  h2 { margin:0 0 14px 0; color:#2c3e50; font-size:1.25rem; text-align:center; }
+
+  .field{
+    position:relative;
+    margin-bottom:14px;
+  }
+
+  .field label{
+    display:block;
+    font-weight:600;
+    margin-bottom:6px;
+    color:#34495e;
+    font-size:14px;
+  }
+
+  input[type="text"],
+  input[type="password"]{
+    width:100%;
+    padding:12px 44px 12px 12px;
+    border-radius:10px;
+    border:1px solid #d6d6d6;
+    font-size:14px;
+    outline:none;
+    box-sizing:border-box;
+  }
+
+  .eye {
+    position:absolute;
+    right:10px;
+    top:38px;
+    background:none;
+    border:none;
+    cursor:pointer;
+    font-size:18px;
+    user-select:none;
+    opacity:0.85;
+  }
+
+  .eye:active { transform:scale(0.98); }
+
+  .help {
+    font-size:13px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+
+  .msg {
+    margin:10px 0 0 0;
+    font-weight:600;
+    font-size:14px;
+  }
+
+  .msg.error { color:var(--danger); }
+  .msg.success { color:var(--success); }
+
+  .btn {
+    width:100%;
+    border:none;
+    background:var(--button);
+    color:white;
+    padding:12px;
+    border-radius:10px;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:12px;
+    font-size:15px;
+  }
+  .btn:hover { opacity:0.95; }
+
+  .small-row {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:12px;
+    font-size:13px;
+  }
+
+  .small-row a { color:var(--accent); text-decoration:none; font-weight:600; }
+
+  @media (max-width:480px){
+    .card { margin:10px; }
+    header { padding:12px; }
+    .content { padding:20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card" role="main" aria-labelledby="login-heading">
+  <header>
+    <div class="brand">🛍️ E-Shop</div>
+    <div class="sub">Welcome back</div>
+  </header>
+
+  <div class="content">
+    <h2 id="login-heading">Login to E-Shop</h2>
+
+    <div class="field">
+      <label for="username">Username</label>
+      <input id="username" type="text" autocomplete="username" placeholder="Enter username">
+    </div>
+
+    <div class="field" style="margin-bottom:6px;">
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" placeholder="Enter password">
+      <button class="eye" id="eye-btn" aria-label="Show password briefly">👁️</button>
+      <div class="help">Password must be 8+ chars with uppercase, lowercase, number & special character.</div>
+    </div>
+
+    <div id="login-msg" class="msg" aria-live="polite"></div>
+
+    <button id="login-btn" class="btn">Login</button>
+
+    <div class="small-row">
+      <div>Don't have an account? <a href="edit-profile.html">Create profile</a></div>
+      <div><a href="#">Forgot?</a></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Password rule: min 8, uppercase, lowercase, number, special char
+  const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const loginBtn = document.getElementById('login-btn');
+  const msgDiv = document.getElementById('login-msg');
+  const eyeBtn = document.getElementById('eye-btn');
+
+  // Show password for 0.5s when eye clicked
+  eyeBtn.addEventListener('click', () => {
+    const origType = passwordInput.type;
+    passwordInput.type = 'text';
+    // short reveal: 500ms
+    setTimeout(() => {
+      passwordInput.type = origType;
+    }, 500);
+  });
+
+  // Validate and login
+  loginBtn.addEventListener('click', () => {
+    const user = usernameInput.value.trim();
+    const pass = passwordInput.value;
+
+    // Clear previous message
+    msgDiv.textContent = '';
+    msgDiv.className = 'msg';
+
+    if (!user || !pass) {
+      msgDiv.textContent = 'Username and password required!';
+      msgDiv.classList.add('error');
+      return;
+    }
+
+    if (!passRegex.test(pass)) {
+      msgDiv.textContent = 'Password must be 8+ chars and include uppercase, lowercase, number and special character.';
+      msgDiv.classList.add('error');
+      return;
+    }
+
+    // Save username (this site uses localStorage)
+    // Use the username string as display value (you may adapt to real auth later)
+    localStorage.setItem('loggedUser', user);
+
+    // Optionally initialize a per-user profile key if not present (preserves Edit Profile behavior)
+    const profileKey = `userProfile_${user}`;
+    if (!localStorage.getItem(profileKey)) {
+      // initialize with username as firstName so greeting works immediately
+      localStorage.setItem(profileKey, JSON.stringify({ firstName: user }));
+    }
+
+    msgDiv.textContent = 'Logged in successfully! Redirecting...';
+    msgDiv.classList.add('success');
+
+    // Redirect immediately (no background tasks). Use short delay so user sees message.
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 600);
+  });
+
+  // Allow pressing Enter to submit
+  [usernameInput, passwordInput].forEach(el => {
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') loginBtn.click();
+    });
+  });
+</script>
+
+</body>
+</html>

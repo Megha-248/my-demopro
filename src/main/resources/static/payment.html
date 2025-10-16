@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment | E-Shop</title>
+<style>
+body { font-family:'Poppins',sans-serif; background:#f4f6f7; margin:0; padding:20px; }
+h1 { text-align:center; color:#2c3e50; }
+#pay-container { max-width:500px; margin:auto; background:white; padding:20px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+input { width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #bdc3c7; }
+button { background:#27ae60; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; font-weight:bold; width:100%; margin-top:10px; }
+.upi-option { display:flex; align-items:center; margin:5px 0; cursor:pointer; border:1px solid #bdc3c7; padding:5px; border-radius:5px; }
+.upi-option img { width:40px; height:40px; margin-right:10px; }
+.upi-option.selected { border:2px solid #27ae60; }
+#thank { text-align:center; font-size:18px; font-weight:bold; color:#27ae60; display:none; margin-top:20px; }
+</style>
+</head>
+<body>
+<h1>Payment</h1>
+<div id="pay-container">
+  <input type="text" id="address" placeholder="Enter Address">
+  <input type="text" id="number" placeholder="Enter Mobile Number">
+
+  <h3>Select Payment Method:</h3>
+  <div class="upi-option" data-type="upi"><img src="images/phonepe.png" alt="PhonePe"> PhonePe/UPI</div>
+  <div class="upi-option" data-type="upi"><img src="images/paytm.png" alt="Paytm"> Paytm/UPI</div>
+  <div class="upi-option" data-type="cod"><img src="images/cod.png" alt="COD"> Cash on Delivery</div>
+
+  <button id="pay-btn">Proceed to Pay</button>
+  <p id="thank">Thank you & Your order is placed!</p>
+</div>
+
+<script>
+let selectedPayment = null;
+document.querySelectorAll('.upi-option').forEach(opt=>{
+  opt.addEventListener('click', ()=>{
+    selectedPayment = opt.getAttribute('data-type');
+    document.querySelectorAll('.upi-option').forEach(o=>o.classList.remove('selected'));
+    opt.classList.add('selected');
+  });
+});
+
+document.getElementById('pay-btn').addEventListener('click', ()=>{
+  const address = document.getElementById('address').value.trim();
+  const number = document.getElementById('number').value.trim();
+  if(!address || !number || !selectedPayment){
+    alert("Please fill all fields and select a payment method!");
+    return;
+  }
+
+  localStorage.removeItem('cart');
+  localStorage.removeItem('checkoutCart');
+
+  document.getElementById('pay-btn').style.display='none';
+  document.getElementById('thank').style.display='block';
+});
+</script>
+</body>
+</html>
